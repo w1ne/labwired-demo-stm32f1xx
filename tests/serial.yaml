@@ -34,7 +34,7 @@ uart_injections:
   # Stands in for the TX/RX jumper the example's doc comment asks for.
   # Buffered until the firmware has configured USART3 and reads it.
   - uart: "usart3"
-    bytes: "X"
+    bytes: "Q"
     trigger: at_start
 assertions:
   # USART3_CR1 (0x4000480C): UE | TE | RE set, proving `.serial(...)`
