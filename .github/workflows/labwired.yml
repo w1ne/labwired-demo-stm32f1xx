@@ -2,39 +2,41 @@ name: labwired firmware test
 
 on:
   push:
-    branches: [labwired-ci]
+    branches: [master]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   simulate:
     name: LabWired examples (stm32f103)
     runs-on: ubuntu-latest
-    # Advisory, not a merge gate: a failure here is reported but does not fail
-    # the workflow, so a simulator bug on our side can never block your PRs.
-    # Drop this line to make it blocking once you trust it.
-    continue-on-error: true
     timeout-minutes: 10
     permissions:
       contents: read
       id-token: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Add Cortex-M3 target
-        run: rustup target add thumbv7m-none-eabi
+      - name: Install Rust 1.95 and Cortex-M3 target
+        run: rustup toolchain install 1.95.0 --profile minimal --target thumbv7m-none-eabi
 
       - name: Build examples (stm32f103)
         run: |
-          cargo build --release --features=stm32f103 --target thumbv7m-none-eabi \
+          cargo +1.95.0 build --release --features=stm32f103 --target thumbv7m-none-eabi \
             --example blinky --example serial
 
       - name: Simulate blinky (GPIO + SysTick)
         uses: labwired/firmware-test@v1
         with:
           script: tests/blinky.yaml
+          version: v0.25.0
+          output_dir: out/blinky
+          comment: "false"
 
       - name: Simulate serial (USART3 loopback)
         uses: labwired/firmware-test@v1
         with:
           script: tests/serial.yaml
+          version: v0.25.0
+          output_dir: out/serial
+          comment: "false"
