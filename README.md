@@ -12,6 +12,32 @@
 
 ## Quick start guide
 
+### Run the examples in LabWired
+
+The `labwired firmware test` workflow builds the unmodified `blinky` and
+`serial` examples for the STM32F103 and runs their simulation assertions on
+pull requests and pushes to `master`. A failed assertion fails the workflow.
+Repository branch protection must require the `LabWired examples (stm32f103)`
+check to make it a merge requirement.
+
+With Rust 1.95 and the [LabWired v0.25.0 CLI](https://github.com/w1ne/labwired-core/releases/tag/v0.25.0)
+installed, run the same checks locally:
+
+```sh
+rustup target add --toolchain 1.95.0 thumbv7m-none-eabi
+cargo +1.95.0 build --release --features=stm32f103 --target thumbv7m-none-eabi \
+  --example blinky --example serial
+labwired test --script tests/blinky.yaml --output-dir out/blinky
+labwired test --script tests/serial.yaml --output-dir out/serial
+```
+
+The blinky test checks GPIOC configuration and the LED output at its bounded
+execution point. The serial test injects `X` into USART3 and requires the
+transmitted byte and a halt at the example's breakpoint. Each run writes
+`result.json`, `uart.log` and `junit.xml` into its output directory.
+
+### Run on hardware
+
 Embedded Rust development requires a bit more setup than ordinary development.
 For this guide, we'll assume you're using a stm32 blue pill board (shown
 below), but if you have another f1 microcontroller, you should be able to adapt
